@@ -26,7 +26,43 @@ export class QuizzComponent {
     if(quizz_questions) {
       this.finished = false
       this.title = quizz_questions.title
-      this.questionSelected = this.questions[0]
+
+      this.questions = quizz_questions.questions
+      this.questionSelected = this.questions[this.questionIndex]
+
+      this.questionMaxIndex = this.questions.length
     }
+  }
+
+  playerChoose(value:string) {
+    this.answers.push(value)
+    this.nextStep()
+  }
+
+  async nextStep() {
+    this.questionIndex += 1
+
+    if(this.questionMaxIndex > this.questionIndex){
+      this.questionSelected = this.questions[this.questionIndex]
+    } else {
+      const finalAnswer:string = await this.checkResult(this.answers)
+      this.finished = true
+      this.answerSelected = quizz_questions.results[finalAnswer as keyof 
+        typeof quizz_questions.results]
+    }
+  }
+
+  async checkResult(answers:string[]) {
+    const result = answers.reduce((previus, current, index, arr) => {
+      if(
+        arr.filter(item => item === previus).length >
+        arr.filter(item => item === current).length
+      ){
+        return previus
+      } else {
+        return current
+      }
+    })
+    return result
   }
 }
